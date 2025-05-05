@@ -1,14 +1,8 @@
-import { IsEmail, IsString } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
+import { User } from '../users.schema';
 
-export class UserRequestDto {
-  @IsString()
-  @IsEmail()
-  name: string;
-
-  @IsString()
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  imgUrl: string;
-}
+export class UserRequestDto extends PickType(User, [
+  'name',
+  'email',
+  'imgUrl',
+] as const) {}
