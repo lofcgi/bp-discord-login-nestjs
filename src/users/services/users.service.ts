@@ -1,23 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRequestDto } from '../dto/users.request.dto';
-import { User } from '../users.schema';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
+import { UsersRepository } from '../repositories/users.repository';
+
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name) private readonly usersModel: Model<User>,
-  ) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async signUp(body: UserRequestDto) {
     const { name, email, imgUrl } = body;
-    const isUserExist = await this.usersModel.exists({ email });
+    const isUserExist = await this.usersRepository.findUserByEmail(email);
 
     if (isUserExist) {
       throw new UnauthorizedException('이미 가입한 이메일입니다.');
     }
 
-    const user = await this.usersModel.create({
+    const user = await this.usersRepository.create({
       name,
       email,
       imgUrl,
