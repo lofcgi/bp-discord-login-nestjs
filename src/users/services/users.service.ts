@@ -1,24 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserRequestDto } from '../dto/users.request.dto';
+import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../repositories/users.repository';
+import { User } from '../users.schema';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async signUp(body: UserRequestDto) {
-    const { name, email, imgUrl } = body;
-    const isUserExist = await this.usersRepository.findUserByEmail(email);
+  async findByDiscordId(discordId: string): Promise<User | null> {
+    return this.usersRepository.findByDiscordId(discordId);
+  }
 
-    if (isUserExist) {
-      throw new UnauthorizedException('이미 가입한 이메일입니다.');
-    }
+  async create(user: Partial<User>): Promise<User> {
+    return this.usersRepository.create(user);
+  }
 
-    const user = await this.usersRepository.create({
-      name,
-      email,
-      imgUrl,
-    });
-    return user.readOnlyData;
+  async update(discordId: string, user: Partial<User>): Promise<User | null> {
+    return this.usersRepository.update(discordId, user);
   }
 }
