@@ -1,9 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as session from 'express-session';
-import { createClient } from 'redis';
-import { RedisStore } from 'connect-redis';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -25,29 +22,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // redis 설정
-  const redisClient = createClient({
-    socket: {
-      host: configService.get('redis.host'),
-      port: configService.get('redis.port'),
-    },
-  });
-  await redisClient.connect();
-
-  // session 설정
-  app.use(
-    session({
-      store: new RedisStore({ client: redisClient }),
-      secret: configService.get('session.secret') as string,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
-      },
-    }),
-  );
-
-  await app.listen(configService.get('port') as number);
+  await app.listen(configService.get('port') || 8000);
 }
 bootstrap();
